@@ -1,26 +1,37 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+    --primary: 236 72 153;
+    --secondary: 64 199 230;
+    --background: 255 255 255;
+    --foreground: 51 51 51;
+    --card: 255 255 255;
+    --card-foreground: 51 51 51;
+    --border: 219 219 219;
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+    --color-red: #dc3545;
+    --color-yellow: #ffc107;
+    --color-green: #28a745;
+  }
+
+  .dark {
+    --primary: 236 72 153;
+    --secondary: 64 199 230;
+    --background: 23 23 23;
+    --foreground: 255 255 255;
+    --card: 30 30 30;
+    --card-foreground: 255 255 255;
+    --border: 60 60 60;
+  }
+
+  body {
+    background-color: rgb(var(--background));
+    color: rgb(var(--foreground));
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
+  }
 }
