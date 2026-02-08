@@ -1,16 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
     LayoutDashboard, Users, UserCircle, Stethoscope, PawPrint,
     Package, Syringe, ClipboardList, CalendarDays, Settings,
-    Activity, Home, LogOut, Menu, X
+    Activity, Home, LogOut, Menu, X, Moon, Sun
 } from "lucide-react";
 import { useState } from "react";
 import clsx from "clsx";
 import { twMerge } from "tailwind-merge";
+
+import Cookies from "js-cookie";
+import { toast } from "sonner";
+import { useTheme } from "next-themes";
 
 const MENU_ITEMS = [
     { name: "Tổng quan", href: "/dashboard", icon: LayoutDashboard },
@@ -27,6 +31,16 @@ const MENU_ITEMS = [
 
 export default function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen: (v: boolean) => void }) {
     const pathname = usePathname();
+    const router = useRouter();
+    const { theme, setTheme } = useTheme();
+
+    const handleLogout = () => {
+        Cookies.remove("token");
+        Cookies.remove("user");
+
+        toast.success("Đã đăng xuất thành công!");
+        router.push("/login");
+    };
 
     return (
         <>
@@ -73,7 +87,18 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean, setIsO
                     })}
 
                     <div className="mt-8 border-t border-border pt-4">
-                        <button className="flex w-full items-center gap-3 px-3 py-2.5 text-custom-red hover:bg-red-50 rounded-lg text-sm font-medium">
+                        <button
+                            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                            className="flex w-full items-center gap-3 px-3 py-2.5 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-lg text-sm font-medium transition-colors"
+                        >
+                            {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
+                            <span>{theme === "dark" ? "Chế độ Sáng" : "Chế độ Tối"}</span>
+                        </button>
+
+                        <button
+                            onClick={handleLogout}
+                            className="flex w-full items-center gap-3 px-3 py-2.5 text-custom-red hover:bg-red-50 rounded-lg text-sm font-medium"
+                        >
                             <LogOut size={20} />
                             Đăng xuất
                         </button>
