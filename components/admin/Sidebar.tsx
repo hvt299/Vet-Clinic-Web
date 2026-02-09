@@ -12,6 +12,7 @@ import {
 import { useTheme } from "next-themes";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
+import { settingsService } from "@/lib/settings";
 
 const MENU_ITEMS = [
     { name: "Tổng quan", href: "/dashboard", icon: LayoutDashboard },
@@ -38,8 +39,20 @@ export default function Sidebar({ isOpen, setIsOpen, isCollapsed, setIsCollapsed
     const router = useRouter();
     const { theme, setTheme } = useTheme();
     const [userRole, setUserRole] = useState<string>("");
+    const [clinicInfo, setClinicInfo] = useState({ name: "Vet Clinic", logo: "" });
 
     useEffect(() => {
+        const fetchSettings = async () => {
+            try {
+                const data = await settingsService.get();
+                setClinicInfo({
+                    name: data.clinicName || "Vet Clinic",
+                    logo: data.logo
+                });
+            } catch (e) { }
+        };
+        fetchSettings();
+
         const userCookie = Cookies.get("user");
         if (userCookie) {
             try {
@@ -89,9 +102,15 @@ export default function Sidebar({ isOpen, setIsOpen, isCollapsed, setIsCollapsed
                 {/* Header Logo */}
                 <div className={cn("h-16 flex items-center border-b border-border px-4 flex-shrink-0", isCollapsed ? "justify-center" : "justify-between")}>
                     <div className="flex items-center gap-2 font-bold text-primary text-xl overflow-hidden whitespace-nowrap">
-                        <PawPrint className="w-8 h-8 flex-shrink-0" />
-                        <span className={cn("transition-all duration-300 origin-left", isCollapsed ? "w-0 opacity-0 scale-0" : "w-auto opacity-100 scale-100")}>
-                            Min Min
+                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0 overflow-hidden">
+                            {clinicInfo.logo ? (
+                                <img src={clinicInfo.logo} alt="Logo" className="w-full h-full object-cover" />
+                            ) : (
+                                <PawPrint size={20} />
+                            )}
+                        </div>
+                        <span className="font-bold text-lg whitespace-nowrap text-gray-800 dark:text-white truncate max-w-[160px]">
+                            {clinicInfo.name}
                         </span>
                     </div>
                     {/* Nút đóng trên mobile */}

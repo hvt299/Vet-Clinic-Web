@@ -1,20 +1,40 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { PawPrint, Loader2 } from "lucide-react";
 import api from "@/lib/axios";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
+import { settingsService } from "@/lib/settings";
 
 export default function LoginPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+    const [clinicInfo, setClinicInfo] = useState({
+        name: "Phòng khám Thú Y",
+        logo: ""
+    });
 
     const [formData, setFormData] = useState({
         username: "",
         password: ""
     });
+
+    useEffect(() => {
+        const fetchSettings = async () => {
+            try {
+                const data = await settingsService.get();
+                setClinicInfo({
+                    name: data.clinicName || "Phòng khám Thú Y",
+                    logo: data.logo
+                });
+            } catch (e) {
+                console.error("Lỗi tải settings login");
+            }
+        };
+        fetchSettings();
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -42,11 +62,17 @@ export default function LoginPage() {
         <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-zinc-950 px-4">
             <div className="max-w-md w-full bg-white dark:bg-zinc-900 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-zinc-800">
                 <div className="text-center mb-8">
-                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
-                        <PawPrint className="w-8 h-8 text-primary" />
+                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 mb-4 overflow-hidden">
+                        {clinicInfo.logo ? (
+                            <img src={clinicInfo.logo} alt="Logo" className="w-full h-full object-cover" />
+                        ) : (
+                            <PawPrint className="w-10 h-10 text-primary" />
+                        )}
                     </div>
-                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Chào mừng trở lại!</h1>
-                    <p className="text-gray-500 mt-2">Đăng nhập vào hệ thống quản lý Min Min</p>
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                        {clinicInfo.name}
+                    </h1>
+                    <p className="text-gray-500 mt-2">Đăng nhập vào hệ thống quản lý</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
