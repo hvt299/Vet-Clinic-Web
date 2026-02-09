@@ -12,7 +12,7 @@ import {
 import { useTheme } from "next-themes";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
-import { settingsService } from "@/lib/settings";
+import { settingsService } from "@/services/settings.service";
 
 const MENU_ITEMS = [
     { name: "Tổng quan", href: "/dashboard", icon: LayoutDashboard },

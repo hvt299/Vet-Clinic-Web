@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
 import Link from "next/link";
-import { settingsService } from "@/lib/settings";
+import { settingsService } from "@/services/settings.service";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);

@@ -3,10 +3,10 @@
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { User, Shield, Key, Edit, Calendar, ShieldAlert } from "lucide-react";
-import api from "@/lib/axios";
 import UserModal from "@/components/admin/UserModal";
 import ChangePasswordModal from "@/components/admin/ChangePasswordModal";
 import { format } from "date-fns";
+import { usersService } from "@/services/users.service";
 
 export default function ProfilePage() {
     const [user, setUser] = useState<any>(null);
@@ -25,9 +25,9 @@ export default function ProfilePage() {
                     return null;
                 }
 
-                const res = await api.get(`/users/${userId}`);
-                setUser(res.data);
-                return res.data;
+                const data = await usersService.getById(userId);
+                setUser(data);
+                return data;
             } catch (err) {
                 console.error("Lỗi tải profile:", err);
                 return null;
@@ -71,7 +71,11 @@ export default function ProfilePage() {
                             }}
                         />
                     </div>
-                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary uppercase tracking-wide inline-flex items-center gap-1">
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide inline-flex items-center gap-1
+                        ${user.role === 'ADMIN'
+                            ? 'bg-red-100 text-custom-red border-red-200'
+                            : 'bg-blue-100 text-blue-700 border-blue-200'}`
+                    }>
                         {user.role === 'ADMIN' ? <ShieldAlert size={14} /> : <Shield size={14} />}
                         {user.role === 'ADMIN' ? 'Quản trị viên' : 'Nhân viên'}
                     </span>

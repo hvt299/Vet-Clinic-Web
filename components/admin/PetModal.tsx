@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { X, Loader2, Save } from "lucide-react";
-import api from "@/lib/axios";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { petsService } from "@/services/pets.service";
+import { customersService } from "@/services/customers.service";
 
 interface PetModalProps {
     isOpen: boolean;
@@ -22,7 +23,7 @@ export default function PetModal({ isOpen, onClose, onSuccess, petToEdit }: PetM
         customerId: "",
         name: "",
         species: "",
-        gender: "UNKNOWN",
+        gender: "UNKNOWN" as "MALE" | "FEMALE" | "UNKNOWN",
         dob: "",
         weight: 0,
         sterilization: false,
@@ -32,7 +33,9 @@ export default function PetModal({ isOpen, onClose, onSuccess, petToEdit }: PetM
 
     useEffect(() => {
         if (isOpen) {
-            api.get("/customers").then((res) => setCustomers(res.data)).catch(() => { });
+            customersService.getAll()
+                .then((data) => setCustomers(data))
+                .catch(() => toast.error("Không thể tải danh sách khách hàng"));
         }
     }, [isOpen]);
 
@@ -42,7 +45,7 @@ export default function PetModal({ isOpen, onClose, onSuccess, petToEdit }: PetM
                 customerId: petToEdit.customerId?._id || petToEdit.customerId || "",
                 name: petToEdit.name,
                 species: petToEdit.species,
-                gender: petToEdit.gender || "UNKNOWN",
+                gender: (petToEdit.gender || "UNKNOWN") as "MALE" | "FEMALE" | "UNKNOWN",
                 dob: petToEdit.dob ? format(new Date(petToEdit.dob), "yyyy-MM-dd") : "",
                 weight: petToEdit.weight || 0,
                 sterilization: petToEdit.sterilization || false,
@@ -54,7 +57,7 @@ export default function PetModal({ isOpen, onClose, onSuccess, petToEdit }: PetM
                 customerId: "",
                 name: "",
                 species: "",
-                gender: "UNKNOWN",
+                gender: "UNKNOWN" as "MALE" | "FEMALE" | "UNKNOWN",
                 dob: "",
                 weight: 0,
                 sterilization: false,
@@ -71,10 +74,10 @@ export default function PetModal({ isOpen, onClose, onSuccess, petToEdit }: PetM
             const payload = { ...formData, weight: Number(formData.weight) };
 
             if (petToEdit) {
-                await api.patch(`/pets/${petToEdit._id}`, payload);
+                await petsService.update(petToEdit._id, payload);
                 toast.success("Cập nhật thú cưng thành công!");
             } else {
-                await api.post("/pets", payload);
+                await petsService.create(payload);
                 toast.success("Thêm thú cưng mới thành công!");
             }
             onSuccess();
@@ -132,7 +135,7 @@ export default function PetModal({ isOpen, onClose, onSuccess, petToEdit }: PetM
                         {/* Giới tính */}
                         <div>
                             <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Giới tính</label>
-                            <select value={formData.gender} onChange={(e) => setFormData({ ...formData, gender: e.target.value })} className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 focus:ring-2 focus:ring-primary/50 outline-none">
+                            <select value={formData.gender} onChange={(e) => setFormData({ ...formData, gender: e.target.value as "MALE" | "FEMALE" | "UNKNOWN" })} className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 focus:ring-2 focus:ring-primary/50 outline-none">
                                 <option value="MALE">Đực</option>
                                 <option value="FEMALE">Cái</option>
                                 <option value="UNKNOWN">Chưa rõ</option>

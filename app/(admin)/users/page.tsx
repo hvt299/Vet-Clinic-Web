@@ -3,21 +3,12 @@
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Edit, Key, Trash2, Search, Loader2, ShieldAlert, Shield } from "lucide-react";
-import api from "@/lib/axios";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import UserModal from "@/components/admin/UserModal";
 import ChangePasswordModal from "@/components/admin/ChangePasswordModal";
 import Cookies from "js-cookie";
-
-interface User {
-    _id: string;
-    username: string;
-    fullName: string;
-    role: string;
-    createdAt: string;
-    isActive: boolean;
-}
+import { usersService, User } from "@/services/users.service";
 
 export default function UsersPage() {
     const [users, setUsers] = useState<User[]>([]);
@@ -32,8 +23,8 @@ export default function UsersPage() {
 
     const fetchUsers = async () => {
         try {
-            const res = await api.get("/users");
-            setUsers(res.data);
+            const data = await usersService.getAll();
+            setUsers(data);
         } catch (error) {
             toast.error("Không thể tải danh sách người dùng");
         } finally {
@@ -65,7 +56,7 @@ export default function UsersPage() {
         if (!confirm("Bạn có chắc chắn muốn xóa người dùng này?")) return;
 
         try {
-            await api.delete(`/users/${id}`);
+            await usersService.delete(id);
             toast.success("Đã xóa người dùng thành công");
             fetchUsers();
         } catch (error: any) {
@@ -157,7 +148,7 @@ export default function UsersPage() {
                                         <td className="px-6 py-4 whitespace-nowrap">{user.fullName}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <span className={`px-2.5 py-1 rounded-full text-xs font-medium border flex items-center gap-1 w-fit
-                                                ${user.role === 'admin'
+                                                ${user.role === 'ADMIN'
                                                     ? 'bg-red-100 text-custom-red border-red-200'
                                                     : 'bg-blue-100 text-blue-700 border-blue-200'}`
                                             }>

@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { X, Loader2, Save } from "lucide-react";
-import api from "@/lib/axios";
 import { toast } from "sonner";
+import { customersService } from "@/services/customers.service";
 
 interface CustomerModalProps {
     isOpen: boolean;
@@ -18,7 +18,7 @@ export default function CustomerModal({ isOpen, onClose, onSuccess, customerToEd
 
     const [formData, setFormData] = useState({
         name: "",
-        gender: "UNKNOWN",
+        gender: "UNKNOWN" as "MALE" | "FEMALE" | "UNKNOWN",
         phoneNumber: "",
         identityCard: "",
         address: "",
@@ -29,7 +29,7 @@ export default function CustomerModal({ isOpen, onClose, onSuccess, customerToEd
         if (customerToEdit) {
             setFormData({
                 name: customerToEdit.name,
-                gender: customerToEdit.gender || "UNKNOWN",
+                gender: (customerToEdit.gender || "UNKNOWN") as "MALE" | "FEMALE" | "UNKNOWN",
                 phoneNumber: customerToEdit.phoneNumber,
                 identityCard: customerToEdit.identityCard || "",
                 address: customerToEdit.address || "",
@@ -38,7 +38,7 @@ export default function CustomerModal({ isOpen, onClose, onSuccess, customerToEd
         } else {
             setFormData({
                 name: "",
-                gender: "UNKNOWN",
+                gender: "UNKNOWN" as "MALE" | "FEMALE" | "UNKNOWN",
                 phoneNumber: "",
                 identityCard: "",
                 address: "",
@@ -52,10 +52,10 @@ export default function CustomerModal({ isOpen, onClose, onSuccess, customerToEd
         setLoading(true);
         try {
             if (customerToEdit) {
-                await api.patch(`/customers/${customerToEdit._id}`, formData);
+                await customersService.update(customerToEdit._id, formData);
                 toast.success("Cập nhật khách hàng thành công!");
             } else {
-                await api.post("/customers", formData);
+                await customersService.create(formData);
                 toast.success("Thêm khách hàng mới thành công!");
             }
             onSuccess();
@@ -98,7 +98,7 @@ export default function CustomerModal({ isOpen, onClose, onSuccess, customerToEd
                             <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Giới tính</label>
                             <select
                                 value={formData.gender}
-                                onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+                                onChange={(e) => setFormData({ ...formData, gender: e.target.value as "MALE" | "FEMALE" | "UNKNOWN" })}
                                 className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 focus:ring-2 focus:ring-primary/50 outline-none"
                             >
                                 <option value="MALE">Nam</option>

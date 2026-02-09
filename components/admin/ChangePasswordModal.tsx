@@ -4,9 +4,9 @@ import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { X, Loader2, Key, Save } from "lucide-react";
-import api from "@/lib/axios";
 import { toast } from "sonner";
 import Cookies from "js-cookie";
+import { usersService } from "@/services/users.service";
 
 interface ChangePasswordModalProps {
     isOpen: boolean;
@@ -38,7 +38,7 @@ export default function ChangePasswordModal({ isOpen, onClose, userId }: ChangeP
         setLoading(true);
         
         try {
-            await api.patch(`/users/change-password/${userId}`, formData);
+            await usersService.changePassword(userId, formData);
 
             const currentUserCookie = Cookies.get("user");
             let isSelfChange = false;

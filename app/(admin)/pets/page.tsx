@@ -1,28 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, Edit, Trash2, Search, Loader2, Cat, Dog, Syringe, User } from "lucide-react";
-import api from "@/lib/axios";
+import { Plus, Edit, Trash2, Search, Loader2, Cat, Dog, Syringe, User, PawPrint } from "lucide-react";
 import { toast } from "sonner";
-import { format, differenceInMonths } from "date-fns";
+import { differenceInMonths } from "date-fns";
 import PetModal from "@/components/admin/PetModal";
-
-interface Pet {
-    _id: string;
-    customerId: {
-        _id: string;
-        name: string;
-        phoneNumber: string;
-    };
-    name: string;
-    species: string;
-    gender: string;
-    dob?: string;
-    weight?: number;
-    sterilization: boolean;
-    characteristic?: string;
-    drugAllergy?: string;
-}
+import { petsService, Pet } from "@/services/pets.service";
 
 export default function PetsPage() {
     const [pets, setPets] = useState<Pet[]>([]);
@@ -34,8 +17,8 @@ export default function PetsPage() {
 
     const fetchPets = async () => {
         try {
-            const res = await api.get("/pets");
-            setPets(res.data);
+            const data = await petsService.getAll();
+            setPets(data);
         } catch (error) {
             toast.error("Không thể tải danh sách thú cưng");
         } finally {
@@ -50,7 +33,7 @@ export default function PetsPage() {
     const handleDelete = async (id: string) => {
         if (!confirm("Bạn có chắc chắn muốn xóa hồ sơ thú cưng này?")) return;
         try {
-            await api.delete(`/pets/${id}`);
+            await petsService.delete(id);
             toast.success("Đã xóa thú cưng thành công");
             fetchPets();
         } catch (error: any) {
@@ -78,6 +61,24 @@ export default function PetsPage() {
         const months = differenceInMonths(new Date(), new Date(dobString));
         if (months < 12) return `${months} tháng`;
         return `${Math.floor(months / 12)} tuổi`;
+    };
+
+    const getPetIconClass = (gender: string) => {
+        switch (gender) {
+            case "MALE":
+                return "bg-blue-100 text-blue-700";
+            case "FEMALE":
+                return "bg-red-100 text-custom-red";
+            default:
+                return "bg-gray-100 text-gray-500";
+        }
+    };
+
+    const renderPetIcon = (species?: string) => {
+        const s = species?.toLowerCase() || "";
+        if (s.includes("mèo")) return <Cat size={20} />;
+        if (s.includes("chó")) return <Dog size={20} />;
+        return <PawPrint size={20} />;
     };
 
     return (
@@ -132,8 +133,8 @@ export default function PetsPage() {
                                     <tr key={pet._id} className="hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors">
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                                                    {pet.species.toLowerCase().includes('mèo') ? <Cat size={20} /> : <Dog size={20} />}
+                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${getPetIconClass(pet.gender)}`}>
+                                                    {renderPetIcon(pet.species)}
                                                 </div>
                                                 <div>
                                                     <div className="font-medium text-gray-900 dark:text-white">{pet.name}</div>

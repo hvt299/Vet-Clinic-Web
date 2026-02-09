@@ -3,19 +3,19 @@
 import { useEffect, useState } from "react";
 import { Save, Plus, Trash2, Building2, Phone, Mail, User, Image as ImageIcon, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { settingsService } from "@/lib/settings";
+import { settingsService, ClinicSettings } from "@/services/settings.service";
 
 export default function SettingsPage() {
     const [loading, setLoading] = useState(false);
     const [fetching, setFetching] = useState(true);
 
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<ClinicSettings>({
         clinicName: "",
         logo: "",
         representativeName: "",
         email: "",
-        phoneNumbers: [] as string[],
-        addresses: [] as string[],
+        phoneNumbers: [],
+        addresses: [],
     });
 
     useEffect(() => {

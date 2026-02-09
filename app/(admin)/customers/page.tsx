@@ -2,20 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { Plus, Edit, Trash2, Search, Loader2, Phone, MapPin, StickyNote } from "lucide-react";
-import api from "@/lib/axios";
 import { toast } from "sonner";
 import CustomerModal from "@/components/admin/CustomerModal";
-
-interface Customer {
-    _id: string;
-    name: string;
-    gender: string;
-    phoneNumber: string;
-    identityCard?: string;
-    address?: string;
-    note?: string;
-    createdAt: string;
-}
+import { customersService, Customer } from "@/services/customers.service";
 
 export default function CustomersPage() {
     const [customers, setCustomers] = useState<Customer[]>([]);
@@ -26,8 +15,8 @@ export default function CustomersPage() {
 
     const fetchCustomers = async () => {
         try {
-            const res = await api.get("/customers");
-            setCustomers(res.data);
+            const data = await customersService.getAll();
+            setCustomers(data);
         } catch (error) {
             toast.error("Không thể tải danh sách khách hàng");
         } finally {
@@ -42,7 +31,7 @@ export default function CustomersPage() {
     const handleDelete = async (id: string) => {
         if (!confirm("Bạn có chắc chắn muốn xóa khách hàng này?")) return;
         try {
-            await api.delete(`/customers/${id}`);
+            await customersService.delete(id);
             toast.success("Đã xóa khách hàng thành công");
             fetchCustomers();
         } catch (error: any) {
@@ -68,7 +57,7 @@ export default function CustomersPage() {
     const getGenderBadge = (gender: string) => {
         switch (gender) {
             case 'MALE': return <span className="bg-blue-100 text-blue-700 border border-blue-200 px-2 py-0.5 rounded text-xs font-medium">Nam</span>;
-            case 'FEMALE': return <span className="bg-pink-100 text-pink-700 border border-pink-200 px-2 py-0.5 rounded text-xs font-medium">Nữ</span>;
+            case 'FEMALE': return <span className="bg-red-100 text-custom-red border border-red-200 px-2 py-0.5 rounded text-xs font-medium">Nữ</span>;
             default: return <span className="bg-gray-100 text-gray-600 border border-gray-200 px-2 py-0.5 rounded text-xs font-medium">Khác</span>;
         }
     }

@@ -3,10 +3,10 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { PawPrint, Loader2 } from "lucide-react";
-import api from "@/lib/axios";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
-import { settingsService } from "@/lib/settings";
+import { settingsService } from "@/services/settings.service";
+import { authService } from "@/services/auth.service";
 
 export default function LoginPage() {
     const router = useRouter();
@@ -41,9 +41,8 @@ export default function LoginPage() {
         setLoading(true);
 
         try {
-            const res = await api.post("/auth/login", formData);
-
-            const { access_token, user } = res.data;
+            const data = await authService.login(formData);
+            const { access_token, user } = data;
             Cookies.set("token", access_token, { expires: 1 });
             Cookies.set("user", JSON.stringify(user), { expires: 1 });
 

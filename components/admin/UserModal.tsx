@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { X, Loader2, Save } from "lucide-react";
-import api from "@/lib/axios";
 import { toast } from "sonner";
 import Cookies from "js-cookie";
+import { usersService } from "@/services/users.service";
 
 interface UserModalProps {
     isOpen: boolean;
@@ -22,7 +22,7 @@ export default function UserModal({ isOpen, onClose, onSuccess, userToEdit }: Us
         password: "",
         fullName: "",
         avatar: "",
-        role: "STAFF",
+        role: "STAFF" as "ADMIN" | "STAFF",
     });
 
     useEffect(() => {
@@ -40,7 +40,7 @@ export default function UserModal({ isOpen, onClose, onSuccess, userToEdit }: Us
                 password: "",
                 fullName: userToEdit.fullName,
                 avatar: userToEdit.avatar || "",
-                role: userToEdit.role,
+                role: userToEdit.role as "ADMIN" | "STAFF",
             });
         } else {
             setFormData({
@@ -48,7 +48,7 @@ export default function UserModal({ isOpen, onClose, onSuccess, userToEdit }: Us
                 password: "",
                 fullName: "",
                 avatar: "",
-                role: "STAFF",
+                role: "STAFF" as "ADMIN" | "STAFF",
             });
         }
     }, [userToEdit, isOpen]);
@@ -79,10 +79,10 @@ export default function UserModal({ isOpen, onClose, onSuccess, userToEdit }: Us
         try {
             if (userToEdit) {
                 const { password, username, ...updateData } = formData;
-                await api.patch(`/users/${userToEdit._id}`, updateData);
+                await usersService.update(userToEdit._id, updateData);
                 toast.success("Cập nhật thông tin thành công!");
             } else {
-                await api.post("/users", formData);
+                await usersService.create(formData);
                 toast.success("Thêm người dùng mới thành công!");
             }
 
@@ -183,7 +183,7 @@ export default function UserModal({ isOpen, onClose, onSuccess, userToEdit }: Us
                         <select
                             disabled={currentUserRole !== 'ADMIN'} 
                             value={formData.role}
-                            onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                            onChange={(e) => setFormData({ ...formData, role: e.target.value as "ADMIN" | "STAFF" })}
                             className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 focus:ring-2 focus:ring-primary/50 outline-none disabled:opacity-60 disabled:cursor-not-allowed disabled:bg-gray-100 dark:disabled:bg-zinc-800"
                         >
                             <option value="STAFF">Nhân viên</option>
