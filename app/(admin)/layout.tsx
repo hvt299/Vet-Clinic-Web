@@ -8,6 +8,7 @@ import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
+import Link from "next/link";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -122,17 +123,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                                         <p className="text-xs text-gray-500">{user?.role === 'ADMIN' ? 'Quản trị viên' : 'Nhân viên'}</p>
                                     </div>
 
-                                    {/* Option 1 */}
-                                    <button className="w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-700/50 flex items-center gap-2 transition-colors">
-                                        <User size={16} className="text-blue-500" />
-                                        Thông tin tài khoản
-                                    </button>
+                                    {/* Option 1: Thông tin tài khoản */}
+                                    <Link href="/profile" className="block w-full">
+                                        <button
+                                            className="w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-700/50 flex items-center gap-2 transition-colors">
+                                            <User size={16} className="text-blue-500" />
+                                            Thông tin tài khoản
+                                        </button>
+                                    </Link>
 
-                                    {/* Option 2 */}
-                                    <button className="w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-700/50 flex items-center gap-2 transition-colors">
-                                        <Key size={16} className="text-yellow-500" />
-                                        Đổi mật khẩu
-                                    </button>
+                                    {/* Option 2: Đổi mật khẩu */}
+                                    <Link href="/profile" className="block w-full">
+                                        <button className="w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-700/50 flex items-center gap-2 transition-colors">
+                                            <Key size={16} className="text-yellow-500" />
+                                            Đổi mật khẩu
+                                        </button>
+                                    </Link>
 
                                     <div className="h-px bg-gray-100 dark:bg-zinc-700 my-1"></div>
 

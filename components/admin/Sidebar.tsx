@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -36,6 +37,17 @@ export default function Sidebar({ isOpen, setIsOpen, isCollapsed, setIsCollapsed
     const pathname = usePathname();
     const router = useRouter();
     const { theme, setTheme } = useTheme();
+    const [userRole, setUserRole] = useState<string>("");
+
+    useEffect(() => {
+        const userCookie = Cookies.get("user");
+        if (userCookie) {
+            try {
+                const user = JSON.parse(userCookie);
+                setUserRole(user.role);
+            } catch (e) { console.error(e); }
+        }
+    }, []);
 
     const handleLogout = () => {
         Cookies.remove("token");
@@ -51,6 +63,13 @@ export default function Sidebar({ isOpen, setIsOpen, isCollapsed, setIsCollapsed
             : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800",
         isCollapsed ? "justify-center px-2" : ""
     );
+
+    const filteredMenu = MENU_ITEMS.filter(item => {
+        if (item.href === "/users" && userRole !== "ADMIN") {
+            return false;
+        }
+        return true;
+    });
 
     return (
         <>
@@ -83,7 +102,7 @@ export default function Sidebar({ isOpen, setIsOpen, isCollapsed, setIsCollapsed
 
                 {/* Menu List (Có scroll) */}
                 <nav className="flex-1 overflow-y-auto overflow-x-hidden p-3 space-y-1">
-                    {MENU_ITEMS.map((item) => {
+                    {filteredMenu.map((item) => {
                         const isActive = pathname.startsWith(item.href);
                         return (
                             <Link

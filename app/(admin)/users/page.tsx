@@ -1,11 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { Plus, Edit, Key, Trash2, Search, Loader2, ShieldAlert, Shield } from "lucide-react";
 import api from "@/lib/axios";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import UserModal from "@/components/admin/UserModal";
+import ChangePasswordModal from "@/components/admin/ChangePasswordModal";
+import Cookies from "js-cookie";
 
 interface User {
     _id: string;
@@ -22,6 +25,10 @@ export default function UsersPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
+    const [isPassModalOpen, setIsPassModalOpen] = useState(false);
+    const [passModalUserId, setPassModalUserId] = useState<string>("");
+    const router = useRouter();
+    const hasAlerted = useRef(false);
 
     const fetchUsers = async () => {
         try {
@@ -35,6 +42,22 @@ export default function UsersPage() {
     };
 
     useEffect(() => {
+        const userCookie = Cookies.get("user");
+        if (userCookie) {
+            const user = JSON.parse(userCookie);
+            if (user.role !== "ADMIN") {
+                if (!hasAlerted.current) {
+                    toast.error("Bạn không có quyền truy cập trang này!");
+                    hasAlerted.current = true;
+                }
+                router.push("/dashboard");
+                return;
+            }
+        } else {
+             router.push("/login");
+             return;
+        }
+
         fetchUsers();
     }, []);
 
@@ -58,6 +81,11 @@ export default function UsersPage() {
     const handleOpenEdit = (user: User) => {
         setSelectedUser(user);
         setIsModalOpen(true);
+    };
+
+    const handleOpenChangePass = (id: string) => {
+        setPassModalUserId(id);
+        setIsPassModalOpen(true);
     };
 
     const filteredUsers = users.filter(user =>
@@ -150,6 +178,7 @@ export default function UsersPage() {
                                                     <Edit size={16} />
                                                 </button>
                                                 <button
+                                                    onClick={() => handleOpenChangePass(user._id)}
                                                     className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition shadow-sm"
                                                     title="Đổi mật khẩu">
                                                     <Key size={16} />
@@ -176,6 +205,12 @@ export default function UsersPage() {
                 onClose={() => setIsModalOpen(false)}
                 onSuccess={fetchUsers}
                 userToEdit={selectedUser}
+            />
+
+            <ChangePasswordModal
+                isOpen={isPassModalOpen}
+                onClose={() => setIsPassModalOpen(false)}
+                userId={passModalUserId}
             />
         </div>
     );
