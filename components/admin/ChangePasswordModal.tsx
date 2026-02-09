@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
+import { useRouter } from "next/navigation";
 import { X, Loader2, Key, Save } from "lucide-react";
 import api from "@/lib/axios";
 import { toast } from "sonner";
+import Cookies from "js-cookie";
 
 interface ChangePasswordModalProps {
     isOpen: boolean;
@@ -16,6 +18,7 @@ export default function ChangePasswordModal({ isOpen, onClose, userId }: ChangeP
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({ oldPassword: "", newPassword: "" });
     const [mounted, setMounted] = useState(false);
+    const router = useRouter();
 
     useEffect(() => {
         setMounted(true);
@@ -33,12 +36,36 @@ export default function ChangePasswordModal({ isOpen, onClose, userId }: ChangeP
             return;
         }
         setLoading(true);
-
+        
         try {
             await api.patch(`/users/change-password/${userId}`, formData);
-            toast.success("Đổi mật khẩu thành công!");
-            onClose();
-            setFormData({ oldPassword: "", newPassword: "" });
+
+            const currentUserCookie = Cookies.get("user");
+            let isSelfChange = false;
+
+            if (currentUserCookie) {
+                const currentUser = JSON.parse(currentUserCookie);
+                const currentUserId = currentUser._id || currentUser.id;
+                if (currentUserId === userId) {
+                    isSelfChange = true;
+                }
+            }
+
+            if (isSelfChange) {
+                toast.success("Đổi mật khẩu thành công! Vui lòng đăng nhập lại.");
+
+                Cookies.remove("token");
+                Cookies.remove("user");
+
+                setTimeout(() => {
+                    router.push("/login");
+                }, 1500);
+            } else {
+                toast.success("Đã đổi mật khẩu cho người dùng này!");
+                onClose();
+                setFormData({ oldPassword: "", newPassword: "" });
+            }
+
         } catch (error: any) {
             toast.error(error.response?.data?.message || "Lỗi đổi mật khẩu");
         } finally {
