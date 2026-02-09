@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
 import Link from "next/link";
+import { settingsService } from "@/lib/settings";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -17,6 +18,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     const { theme, setTheme } = useTheme();
     const [user, setUser] = useState<{ fullName: string; avatar?: string; role: string } | null>(null);
     const router = useRouter();
+    const [clinicInfo, setClinicInfo] = useState({
+        name: "Phòng Khám Thú Y",
+        addresses: [] as string[],
+        phones: [] as string[]
+    });
+    const [infoIndex, setInfoIndex] = useState(0);
+
+    useEffect(() => {
+        if (clinicInfo.addresses.length <= 1) return;
+
+        const interval = setInterval(() => {
+            setInfoIndex((prev) => (prev + 1) % clinicInfo.addresses.length);
+        }, 5000);
+
+        return () => clearInterval(interval);
+    }, [clinicInfo.addresses.length]);
 
     useEffect(() => {
         setMounted(true);
@@ -29,6 +46,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 console.error("Lỗi đọc cookie user", error);
             }
         }
+
+        const fetchSettings = async () => {
+            try {
+                const data = await settingsService.get();
+                setClinicInfo({
+                    name: data.clinicName || "Phòng Khám Thú Y",
+                    addresses: data.addresses || [],
+                    phones: data.phoneNumbers || []
+                });
+            } catch (error) {
+                console.error("Lỗi tải settings header", error);
+            }
+        };
+        fetchSettings();
     }, []);
 
     if (!mounted) return null;
@@ -52,7 +83,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <div
                 className={cn(
                     "flex-1 flex flex-col transition-all duration-300 ease-in-out",
-                    isCollapsed ? "md:pl-20" : "md:pl-64"
+                    isCollapsed ? "lg:pl-20" : "lg:pl-64"
                 )}
             >
                 {/* Header */}
@@ -60,13 +91,42 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     <div className="flex items-center gap-4">
                         <button
                             onClick={() => setSidebarOpen(true)}
-                            className="md:hidden p-2 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-md text-gray-600 dark:text-gray-300"
+                            className="lg:hidden p-2 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-md text-gray-600 dark:text-gray-300"
                         >
                             <Menu size={24} />
                         </button>
-                        <div className="hidden md:block">
-                            <h2 className="font-semibold text-primary">Phòng Khám Thú Y Min Min</h2>
-                            <p className="text-xs text-gray-500">163/5 Võ Văn Kiệt, TP. Bạc Liêu</p>
+                        {/* Ẩn trên Mobile/Tablet */}
+                        <div className="hidden lg:block ml-2">
+                            <h2 className="font-bold text-primary dark:text-gray-200 text-lg leading-tight">
+                                {clinicInfo.name}
+                            </h2>
+
+                            {/* Khu vực hiển thị luân phiên: Địa chỉ + SĐT trên CÙNG 1 DÒNG */}
+                            <div className="h-5 relative overflow-hidden mt-0.5 min-w-[300px]">
+                                {clinicInfo.addresses.length > 0 ? (
+                                    <div
+                                        key={infoIndex}
+                                        className="absolute inset-0 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 animate-in fade-in slide-in-from-bottom-1 duration-500"
+                                    >
+                                        {/* Địa chỉ */}
+                                        <span className="truncate max-w-[280px]" title={clinicInfo.addresses[infoIndex]}>
+                                            {clinicInfo.addresses[infoIndex]}
+                                        </span>
+
+                                        {/* Ngăn cách và SĐT (nếu có) */}
+                                        {clinicInfo.phones[infoIndex] && (
+                                            <>
+                                                <div className="h-3 w-px bg-gray-300 dark:bg-zinc-700 shrink-0"></div>
+                                                <span className="font-medium whitespace-nowrap text-gray-700 dark:text-gray-300">
+                                                    {clinicInfo.phones[infoIndex]}
+                                                </span>
+                                            </>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <span className="text-xs text-gray-400 italic">Đang cập nhật thông tin...</span>
+                                )}
+                            </div>
                         </div>
                     </div>
 

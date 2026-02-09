@@ -86,22 +86,28 @@ export default function Sidebar({ isOpen, setIsOpen, isCollapsed, setIsCollapsed
 
     return (
         <>
-            {/* Overlay cho Mobile */}
-            <div
-                className={cn("fixed inset-0 z-40 bg-black/50 md:hidden transition-opacity", isOpen ? "opacity-100" : "opacity-0 pointer-events-none")}
-                onClick={() => setIsOpen(false)}
-            />
+            {/* OVERLAY: Hiện trên Mobile và Tablet */}
+            {isOpen && (
+                <div
+                    className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
+                    onClick={() => setIsOpen(false)}
+                />
+            )}
 
             {/* Sidebar chính */}
-            <aside className={cn(
-                "fixed inset-y-0 left-0 z-50 bg-white dark:bg-zinc-900 border-r border-border transition-all duration-300 ease-in-out flex flex-col",
-                isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
-                isCollapsed ? "w-20" : "w-64"
-            )}>
+            <aside
+                className={cn(
+                    "fixed top-0 left-0 z-50 h-screen bg-white dark:bg-zinc-900 border-r border-border transition-all duration-300 ease-in-out flex flex-col shadow-xl lg:shadow-none",
+                    isOpen ? "translate-x-0" : "-translate-x-full",
+                    "lg:translate-x-0",
+                    isCollapsed ? "lg:w-20" : "lg:w-64",
+                    "w-64"
+                )}
+            >
 
                 {/* Header Logo */}
                 <div className={cn("h-16 flex items-center border-b border-border px-4 flex-shrink-0", isCollapsed ? "justify-center" : "justify-between")}>
-                    <div className="flex items-center gap-2 font-bold text-primary text-xl overflow-hidden whitespace-nowrap">
+                    <div className="flex items-center gap-3 font-bold text-primary text-xl overflow-hidden whitespace-nowrap">
                         <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0 overflow-hidden">
                             {clinicInfo.logo ? (
                                 <img src={clinicInfo.logo} alt="Logo" className="w-full h-full object-cover" />
@@ -109,13 +115,23 @@ export default function Sidebar({ isOpen, setIsOpen, isCollapsed, setIsCollapsed
                                 <PawPrint size={20} />
                             )}
                         </div>
-                        <span className="font-bold text-lg whitespace-nowrap text-gray-800 dark:text-white truncate max-w-[160px]">
-                            {clinicInfo.name}
-                        </span>
+                        <div className={cn(
+                            "transition-all duration-300 ease-in-out overflow-hidden",
+                            isCollapsed ? "lg:w-0 lg:opacity-0" : "lg:w-[150px] lg:opacity-100",
+                            "w-[160px]"
+                        )}>
+                            <span className="font-bold text-lg whitespace-nowrap text-gray-700 dark:text-gray-200 block truncate">
+                                ADMIN PAGE
+                            </span>
+                        </div>
                     </div>
-                    {/* Nút đóng trên mobile */}
-                    <button onClick={() => setIsOpen(false)} className="md:hidden">
-                        <X className="w-6 h-6" />
+
+                    {/* Nút đóng Sidebar (Mobile/Tablet): Dấu X */}
+                    <button
+                        onClick={() => setIsOpen(false)}
+                        className="hidden md:block lg:hidden p-1 text-gray-500 hover:bg-gray-100 rounded-md"
+                    >
+                        <X size={20} />
                     </button>
                 </div>
 
@@ -136,7 +152,8 @@ export default function Sidebar({ isOpen, setIsOpen, isCollapsed, setIsCollapsed
                                 {/* Text trượt ra vào */}
                                 <span className={cn(
                                     "whitespace-nowrap overflow-hidden transition-all duration-300",
-                                    isCollapsed ? "w-0 opacity-0" : "w-auto opacity-100 ml-0"
+                                    isCollapsed ? "lg:w-0 lg:opacity-0" : "lg:w-auto lg:opacity-100",
+                                    "w-auto opacity-100"
                                 )}>
                                     {item.name}
                                 </span>
@@ -186,7 +203,7 @@ export default function Sidebar({ isOpen, setIsOpen, isCollapsed, setIsCollapsed
                     {/* Nút Toggle Sidebar (Chỉ hiện trên Desktop) */}
                     <button
                         onClick={() => setIsCollapsed(!isCollapsed)}
-                        className="hidden md:flex w-full items-center justify-center p-2 mt-2 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
+                        className="hidden lg:flex w-full items-center justify-center p-2 mt-2 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
                     >
                         {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
                     </button>
