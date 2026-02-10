@@ -45,8 +45,8 @@ export default function UsersPage() {
                 return;
             }
         } else {
-             router.push("/login");
-             return;
+            router.push("/login");
+            return;
         }
 
         fetchUsers();
@@ -124,6 +124,7 @@ export default function UsersPage() {
                                 <th className="px-6 py-4 whitespace-nowrap">Tên đăng nhập</th>
                                 <th className="px-6 py-4 whitespace-nowrap">Họ tên</th>
                                 <th className="px-6 py-4 whitespace-nowrap">Vai trò</th>
+                                <th className="px-6 py-4 whitespace-nowrap">Trạng thái</th>
                                 <th className="px-6 py-4 whitespace-nowrap">Ngày tạo</th>
                                 <th className="px-6 py-4 text-center whitespace-nowrap">Hành động</th>
                             </tr>
@@ -154,6 +155,15 @@ export default function UsersPage() {
                                             }>
                                                 {user.role === 'ADMIN' ? <ShieldAlert size={14} /> : <Shield size={14} />}
                                                 {user.role === 'ADMIN' ? 'Quản trị viên' : 'Nhân viên'}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${user.isActive
+                                                    ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-900/30"
+                                                    : "bg-red-50 text-red-600 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-900/30"
+                                                }`}>
+                                                <span className={`w-1.5 h-1.5 rounded-full ${user.isActive ? "bg-green-500" : "bg-red-500"}`}></span>
+                                                {user.isActive ? "Đang hoạt động" : "Đã khóa"}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 text-gray-500 whitespace-nowrap">

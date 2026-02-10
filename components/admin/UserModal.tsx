@@ -23,6 +23,7 @@ export default function UserModal({ isOpen, onClose, onSuccess, userToEdit }: Us
         fullName: "",
         avatar: "",
         role: "STAFF" as "ADMIN" | "STAFF",
+        isActive: true,
     });
 
     useEffect(() => {
@@ -41,6 +42,7 @@ export default function UserModal({ isOpen, onClose, onSuccess, userToEdit }: Us
                 fullName: userToEdit.fullName,
                 avatar: userToEdit.avatar || "",
                 role: userToEdit.role as "ADMIN" | "STAFF",
+                isActive: userToEdit.isActive ?? true,
             });
         } else {
             setFormData({
@@ -49,6 +51,7 @@ export default function UserModal({ isOpen, onClose, onSuccess, userToEdit }: Us
                 fullName: "",
                 avatar: "",
                 role: "STAFF" as "ADMIN" | "STAFF",
+                isActive: true,
             });
         }
     }, [userToEdit, isOpen]);
@@ -181,7 +184,7 @@ export default function UserModal({ isOpen, onClose, onSuccess, userToEdit }: Us
                     <div>
                         <label className="block text-sm font-medium mb-1.5 text-gray-700 dark:text-gray-300">Vai trò</label>
                         <select
-                            disabled={currentUserRole !== 'ADMIN'} 
+                            disabled={currentUserRole !== 'ADMIN'}
                             value={formData.role}
                             onChange={(e) => setFormData({ ...formData, role: e.target.value as "ADMIN" | "STAFF" })}
                             className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 focus:ring-2 focus:ring-primary/50 outline-none disabled:opacity-60 disabled:cursor-not-allowed disabled:bg-gray-100 dark:disabled:bg-zinc-800"
@@ -194,6 +197,25 @@ export default function UserModal({ isOpen, onClose, onSuccess, userToEdit }: Us
                                 * Chỉ Quản trị viên mới có quyền thay đổi vai trò.
                             </p>
                         )}
+                    </div>
+
+                    {/* Trạng thái hoạt động - Toggle Switch */}
+                    <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-zinc-800/50 rounded-lg border border-gray-100 dark:border-zinc-800">
+                        <div className="relative inline-block w-10 h-6 align-middle select-none transition duration-200 ease-in">
+                            <input
+                                type="checkbox"
+                                name="toggle-user"
+                                id="toggle-user"
+                                className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer transition-transform duration-200 ease-in-out checked:translate-x-full checked:border-primary"
+                                checked={formData.isActive}
+                                onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                                disabled={currentUserRole !== 'ADMIN'}
+                            />
+                            <label htmlFor="toggle-user" className={`toggle-label block overflow-hidden h-6 rounded-full cursor-pointer transition-colors duration-200 ${formData.isActive ? 'bg-primary' : 'bg-gray-300 dark:bg-zinc-600'}`}></label>
+                        </div>
+                        <label htmlFor="toggle-user" className="text-sm font-medium cursor-pointer text-gray-700 dark:text-gray-300">
+                            Đang hoạt động (Active)
+                        </label>
                     </div>
 
                     {/* Footer Actions */}
