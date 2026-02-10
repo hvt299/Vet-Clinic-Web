@@ -24,6 +24,10 @@ export const treatmentCoursesService = {
         const res = await api.get<TreatmentCourse[]>("/treatment-courses");
         return res.data;
     },
+    getById: async (id: string) => {
+        const res = await api.get<TreatmentCourse>(`/treatment-courses/${id}`);
+        return res.data;
+    },
     create: async (data: any) => {
         const res = await api.post("/treatment-courses", data);
         return res.data;

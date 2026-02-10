@@ -41,7 +41,7 @@ export default function TreatmentCoursesPage() {
     const handleOpenEdit = (item: TreatmentCourse) => { setSelectedItem(item); setIsModalOpen(true); };
 
     const handleViewDetail = (id: string) => {
-        router.push(`/admin/treatments/${id}`);
+        router.push(`/treatments/${id}`);
     };
 
     const filteredData = data.filter(item => {
