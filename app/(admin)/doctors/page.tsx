@@ -69,7 +69,7 @@ export default function DoctorsPage() {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Quản lý Bác sĩ</h1>
+                    <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Quản lý bác sĩ</h1>
                     <p className="text-gray-500 text-sm">Danh sách đội ngũ bác sĩ và chuyên gia</p>
                 </div>
                 <button

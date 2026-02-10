@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
     LayoutDashboard, Users, UserCircle, Stethoscope, PawPrint,
-    Package, Syringe, ClipboardList, CalendarDays, Settings,
+    Pill, Syringe, ClipboardList, CalendarDays, Settings,
     LogOut, ChevronLeft, ChevronRight, X, Moon, Sun
 } from "lucide-react";
 import { useTheme } from "next-themes";
@@ -20,7 +20,7 @@ const MENU_ITEMS = [
     { name: "Khách hàng", href: "/customers", icon: UserCircle },
     { name: "Bác sĩ", href: "/doctors", icon: Stethoscope },
     { name: "Thú cưng", href: "/pets", icon: PawPrint },
-    { name: "Kho thuốc", href: "/inventory", icon: Package },
+    { name: "Kho thuốc", href: "/medicines", icon: Pill },
     { name: "Vaccine", href: "/vaccines", icon: Syringe },
     { name: "Lịch tiêm", href: "/vaccine-history", icon: ClipboardList },
     { name: "Đợt khám", href: "/visits", icon: CalendarDays },

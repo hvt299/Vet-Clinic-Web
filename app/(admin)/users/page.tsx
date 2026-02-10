@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Edit, Key, Trash2, Search, Loader2, ShieldAlert, Shield } from "lucide-react";
+import { Plus, Edit, Key, Trash2, Search, Loader2, ShieldAlert, Shield, User as UserIcon } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import UserModal from "@/components/admin/UserModal";
@@ -145,7 +145,22 @@ export default function UsersPage() {
                             ) : (
                                 filteredUsers.map((user) => (
                                     <tr key={user._id} className="hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors">
-                                        <td className="px-6 py-4 font-medium whitespace-nowrap">{user.username}</td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary overflow-hidden border border-gray-100 dark:border-zinc-700 shrink-0">
+                                                    {user.avatar ? (
+                                                        <img src={user.avatar} alt={user.username} className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        <UserIcon size={20} />
+                                                    )}
+                                                </div>
+                                                <div>
+                                                    <p className="font-medium text-gray-900 dark:text-white whitespace-nowrap">
+                                                        {user.username}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </td>
                                         <td className="px-6 py-4 whitespace-nowrap">{user.fullName}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <span className={`px-2.5 py-1 rounded-full text-xs font-medium border flex items-center gap-1 w-fit
@@ -159,8 +174,8 @@ export default function UsersPage() {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${user.isActive
-                                                    ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-900/30"
-                                                    : "bg-red-50 text-red-600 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-900/30"
+                                                ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-900/30"
+                                                : "bg-red-50 text-red-600 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-900/30"
                                                 }`}>
                                                 <span className={`w-1.5 h-1.5 rounded-full ${user.isActive ? "bg-green-500" : "bg-red-500"}`}></span>
                                                 {user.isActive ? "Đang hoạt động" : "Đã khóa"}

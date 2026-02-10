@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, Edit, Trash2, Search, Loader2, Phone, MapPin, StickyNote } from "lucide-react";
+import { Plus, Edit, Trash2, Search, Loader2, Phone, MapPin, StickyNote, User } from "lucide-react";
 import { toast } from "sonner";
 import CustomerModal from "@/components/admin/CustomerModal";
 import { customersService, Customer } from "@/services/customers.service";
@@ -115,9 +115,26 @@ export default function CustomersPage() {
                             ) : (
                                 filteredCustomers.map((customer) => (
                                     <tr key={customer._id} className="hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors">
-                                        <td className="px-6 py-4 font-medium whitespace-nowrap text-gray-900 dark:text-white">
-                                            {customer.name}
-                                            {customer.identityCard && <div className="text-xs text-gray-400 font-normal mt-0.5">CMND: {customer.identityCard}</div>}
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 border border-blue-100 dark:border-blue-900/30 shrink-0">
+                                                    <User size={20} />
+                                                </div>
+                                                <div>
+                                                    <p className="font-medium text-gray-900 dark:text-white whitespace-nowrap">
+                                                        {customer.name}
+                                                    </p>
+                                                    {customer.identityCard ? (
+                                                        <p className="text-xs text-gray-400 font-normal mt-0.5">
+                                                            CCCD: {customer.identityCard}
+                                                        </p>
+                                                    ) : (
+                                                        <p className="text-xs text-gray-400 font-normal mt-0.5 italic">
+                                                            Khách vãng lai
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
