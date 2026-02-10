@@ -175,7 +175,7 @@ export default function PetModal({ isOpen, onClose, onSuccess, petToEdit }: PetM
                         {/* Dị ứng thuốc */}
                         <div className="md:col-span-2">
                             <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Dị ứng thuốc (Nếu có)</label>
-                            <textarea rows={2} value={formData.drugAllergy} onChange={(e) => setFormData({ ...formData, drugAllergy: e.target.value })} className="w-full px-3 py-2 rounded-lg border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-900/10 focus:ring-2 focus:ring-red-500/50 outline-none" placeholder="VD: Dị ứng Paracetamol..." />
+                            <textarea rows={2} value={formData.drugAllergy} onChange={(e) => setFormData({ ...formData, drugAllergy: e.target.value })} className="w-full px-3 py-2 rounded-lg border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-900/10 focus:ring-2 focus:ring-red-500/50 outline-none resize-none" placeholder="VD: Dị ứng Paracetamol..." />
                         </div>
                     </div>
 

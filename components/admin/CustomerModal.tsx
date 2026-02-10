@@ -122,7 +122,7 @@ export default function CustomerModal({ isOpen, onClose, onSuccess, customerToEd
                         {/* Ghi chú */}
                         <div className="md:col-span-2">
                             <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Ghi chú</label>
-                            <textarea rows={2} value={formData.note} onChange={(e) => setFormData({ ...formData, note: e.target.value })} className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 focus:ring-2 focus:ring-primary/50 outline-none" placeholder="Khách khó tính, khách VIP..." />
+                            <textarea rows={2} value={formData.note} onChange={(e) => setFormData({ ...formData, note: e.target.value })} className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 focus:ring-2 focus:ring-primary/50 outline-none resize-none" placeholder="Khách khó tính, khách VIP..." />
                         </div>
                     </div>
 

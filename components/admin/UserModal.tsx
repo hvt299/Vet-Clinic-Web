@@ -193,7 +193,7 @@ export default function UserModal({ isOpen, onClose, onSuccess, userToEdit }: Us
                             <option value="ADMIN">Quản trị viên</option>
                         </select>
                         {currentUserRole !== 'ADMIN' && (
-                            <p className="text-xs text-red-500 mt-1">
+                            <p className="text-xs text-orange-500 mt-1">
                                 * Chỉ Quản trị viên mới có quyền thay đổi vai trò.
                             </p>
                         )}

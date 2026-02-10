@@ -112,7 +112,7 @@ export default function ChangePasswordModal({ isOpen, onClose, userId }: ChangeP
                             value={formData.newPassword}
                             onChange={e => setFormData({ ...formData, newPassword: e.target.value })}
                         />
-                        <p className="text-xs text-gray-500 mt-1">
+                        <p className="text-xs text-orange-500 mt-1">
                             * Yêu cầu: Ít nhất 8 ký tự, bao gồm chữ hoa, thường, số và ký tự đặc biệt.
                         </p>
                     </div>
