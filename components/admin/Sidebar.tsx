@@ -23,7 +23,7 @@ const MENU_ITEMS = [
     { name: "Kho thuốc", href: "/medicines", icon: Pill },
     { name: "Vaccine", href: "/vaccines", icon: Syringe },
     { name: "Lịch tiêm", href: "/vaccinations", icon: ClipboardList },
-    { name: "Đợt khám", href: "/visits", icon: CalendarDays },
+    { name: "Đợt khám", href: "/treatments", icon: CalendarDays },
     { name: "Cài đặt", href: "/settings", icon: Settings },
 ];
 
