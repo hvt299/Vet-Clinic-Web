@@ -19,6 +19,21 @@ export interface ChartData {
     vaccinations: number;
 }
 
+export interface RecentTreatment {
+    _id: string;
+    petId: {
+        name: string;
+        species: string;
+    };
+    customerId: {
+        name: string;
+        phoneNumber: string;
+    };
+    diagnosisSummary: string;
+    startDate: string;
+    status: string;
+}
+
 export const statisticsService = {
     getGeneralStats: async () => {
         const res = await api.get<GeneralStats>("/statistics/general");
@@ -30,6 +45,10 @@ export const statisticsService = {
     },
     getChartData: async () => {
         const res = await api.get<ChartData[]>("/statistics/revenue-chart");
+        return res.data;
+    },
+    getRecentTreatments: async () => {
+        const res = await api.get<RecentTreatment[]>("/statistics/recent-treatments");
         return res.data;
     }
 };

@@ -74,7 +74,7 @@ export default function Sidebar({ isOpen, setIsOpen, isCollapsed, setIsCollapsed
         isActive
             ? "bg-primary text-white shadow-md"
             : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800",
-        isCollapsed ? "justify-center px-2" : ""
+        isCollapsed ? "px-2" : ""
     );
 
     const filteredMenu = MENU_ITEMS.filter(item => {
@@ -107,7 +107,7 @@ export default function Sidebar({ isOpen, setIsOpen, isCollapsed, setIsCollapsed
 
                 {/* Header Logo */}
                 <div className={cn("h-16 flex items-center border-b border-border px-4 flex-shrink-0", isCollapsed ? "justify-center" : "justify-between")}>
-                    <div className="flex items-center gap-3 font-bold text-primary text-xl overflow-hidden whitespace-nowrap">
+                    <Link href="/dashboard" className="flex items-center gap-3 font-bold text-primary text-xl overflow-hidden whitespace-nowrap">
                         <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0 overflow-hidden">
                             {clinicInfo.logo ? (
                                 <img src={clinicInfo.logo} alt="Logo" className="w-full h-full object-cover" />
@@ -124,7 +124,7 @@ export default function Sidebar({ isOpen, setIsOpen, isCollapsed, setIsCollapsed
                                 ADMIN PAGE
                             </span>
                         </div>
-                    </div>
+                    </Link>
 
                     {/* Nút đóng Sidebar (Mobile/Tablet): Dấu X */}
                     <button
@@ -157,13 +157,6 @@ export default function Sidebar({ isOpen, setIsOpen, isCollapsed, setIsCollapsed
                                 )}>
                                     {item.name}
                                 </span>
-
-                                {/* Tooltip giả khi hover ở chế độ thu nhỏ */}
-                                {isCollapsed && (
-                                    <div className="absolute left-14 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 pointer-events-none z-50 whitespace-nowrap transition-opacity">
-                                        {item.name}
-                                    </div>
-                                )}
                             </Link>
                         );
                     })}
@@ -175,7 +168,7 @@ export default function Sidebar({ isOpen, setIsOpen, isCollapsed, setIsCollapsed
                     {/* Nút Dark Mode */}
                     <button
                         onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                        className={cn(itemClass(false), "w-full")}
+                        className={cn(itemClass(false), "w-full", isCollapsed ? "justify-center" : "")}
                         title={isCollapsed ? (theme === "dark" ? "Chế độ Sáng" : "Chế độ Tối") : ""}
                     >
                         {theme === "dark" ? <Sun size={20} className="flex-shrink-0 text-yellow-500" /> : <Moon size={20} className="flex-shrink-0" />}

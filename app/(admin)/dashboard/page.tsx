@@ -2,30 +2,34 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { statisticsService, GeneralStats, TodayStats, ChartData } from "@/services/statistics.service";
+import { statisticsService, GeneralStats, TodayStats, ChartData, RecentTreatment } from "@/services/statistics.service";
 
 import DashboardCards from "@/components/admin/dashboard/DashboardCards";
 import DashboardChart from "@/components/admin/dashboard/DashboardChart";
 import RecentActivity from "@/components/admin/dashboard/RecentActivity";
+import RecentTreatmentsTable from "@/components/admin/dashboard/RecentTreatmentsTable";
 
 export default function DashboardPage() {
     const [generalStats, setGeneralStats] = useState<GeneralStats | null>(null);
     const [todayStats, setTodayStats] = useState<TodayStats | null>(null);
     const [chartData, setChartData] = useState<ChartData[]>([]);
+    const [recentTreatments, setRecentTreatments] = useState<RecentTreatment[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchAllStats = async () => {
             try {
-                const [general, today, chart] = await Promise.all([
+                const [general, today, chart, recent] = await Promise.all([
                     statisticsService.getGeneralStats(),
                     statisticsService.getTodayStats(),
-                    statisticsService.getChartData()
+                    statisticsService.getChartData(),
+                    statisticsService.getRecentTreatments()
                 ]);
 
                 setGeneralStats(general);
                 setTodayStats(today);
                 setChartData(chart);
+                setRecentTreatments(recent);
             } catch (error) {
                 toast.error("Không thể tải dữ liệu thống kê");
             } finally {
@@ -58,6 +62,11 @@ export default function DashboardPage() {
                 <div>
                     <RecentActivity data={todayStats} />
                 </div>
+            </div>
+
+            {/* 3. Recent Treatments Table */}
+            <div className="grid grid-cols-1">
+                <RecentTreatmentsTable data={recentTreatments} />
             </div>
         </div>
     );
