@@ -34,6 +34,11 @@ export interface RecentTreatment {
     status: string;
 }
 
+export interface TopDiagnosis {
+    _id: string;
+    count: number;
+}
+
 export const statisticsService = {
     getGeneralStats: async () => {
         const res = await api.get<GeneralStats>("/statistics/general");
@@ -49,6 +54,10 @@ export const statisticsService = {
     },
     getRecentTreatments: async () => {
         const res = await api.get<RecentTreatment[]>("/statistics/recent-treatments");
+        return res.data;
+    },
+    getTopDiagnoses: async () => {
+        const res = await api.get<TopDiagnosis[]>("/statistics/top-diagnoses");
         return res.data;
     }
 };
