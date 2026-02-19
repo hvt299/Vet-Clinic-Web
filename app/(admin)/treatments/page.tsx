@@ -1,12 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Search, Edit, Trash2, User, PawPrint, Loader2, Calendar, Activity, Eye, FileText } from "lucide-react";
+import { useReactToPrint } from "react-to-print";
+import { Plus, Search, Edit, Trash2, User, PawPrint, Loader2, Calendar, Activity, Eye, FileText, ClipboardType, Printer } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { treatmentCoursesService, TreatmentCourse } from "@/services/treatment-courses.service";
+import { settingsService, ClinicSettings } from "@/services/settings.service";
 import TreatmentCourseModal from "@/components/admin/TreatmentCourseModal";
+import PrintOverviewTemplate from "@/components/admin/PrintOverviewTemplate";
 
 export default function TreatmentCoursesPage() {
     const router = useRouter();
@@ -18,6 +21,23 @@ export default function TreatmentCoursesPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedItem, setSelectedItem] = useState<TreatmentCourse | null>(null);
 
+    const [settings, setSettings] = useState<ClinicSettings | null>(null);
+    const [printData, setPrintData] = useState<TreatmentCourse | null>(null);
+    const printRef = useRef<HTMLDivElement>(null);
+
+    const handlePrintFn = useReactToPrint({
+        contentRef: printRef,
+        documentTitle: printData ? `Ho-So-Tong-Quan-${printData._id}` : "Ho-So-Benh-An",
+        onAfterPrint: () => setPrintData(null),
+    });
+
+    const triggerPrint = (course: TreatmentCourse) => {
+        setPrintData(course);
+        setTimeout(() => {
+            handlePrintFn();
+        }, 100);
+    };
+
     const fetchData = async () => {
         try {
             const res = await treatmentCoursesService.getAll();
@@ -26,7 +46,10 @@ export default function TreatmentCoursesPage() {
         finally { setLoading(false); }
     };
 
-    useEffect(() => { fetchData(); }, []);
+    useEffect(() => {
+        fetchData();
+        settingsService.get().then(setSettings).catch(() => { });
+    }, []);
 
     const handleDelete = async (id: string) => {
         if (!confirm("Bạn chắc chắn muốn xóa hồ sơ điều trị này? Hành động này sẽ xóa luôn lịch sử các lần khám bên trong.")) return;
@@ -61,6 +84,10 @@ export default function TreatmentCoursesPage() {
                 return <span className="bg-blue-100 text-blue-700 border border-blue-200 px-2.5 py-0.5 rounded text-xs font-medium flex items-center gap-1 w-fit"><Activity size={12} /> Đang điều trị</span>;
             case "RECOVERED":
                 return <span className="bg-green-100 text-green-700 border border-green-200 px-2.5 py-0.5 rounded text-xs font-medium flex items-center gap-1 w-fit"><span className="w-1.5 h-1.5 rounded-full bg-green-500"></span> Đã hồi phục</span>;
+            case "DECEASED":
+                return <span className="bg-zinc-800 text-white border border-zinc-700 px-2.5 py-0.5 rounded text-xs font-medium w-fit">Tử vong</span>;
+            case "CANCELED":
+                return <span className="bg-red-100 text-red-700 border border-red-200 px-2.5 py-0.5 rounded text-xs font-medium w-fit">Hủy bỏ</span>;
             default:
                 return <span className="bg-gray-100 text-gray-600 border border-gray-200 px-2.5 py-0.5 rounded text-xs font-medium">{status}</span>;
         }
@@ -92,6 +119,8 @@ export default function TreatmentCoursesPage() {
                     <option value="ALL">-- Tất cả trạng thái --</option>
                     <option value="ONGOING">Đang điều trị</option>
                     <option value="RECOVERED">Đã hồi phục</option>
+                    <option value="DECEASED">Tử vong</option>
+                    <option value="CANCELED">Hủy bỏ</option>
                 </select>
 
                 <div className="relative flex-1">
@@ -141,9 +170,14 @@ export default function TreatmentCoursesPage() {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <div className="flex items-center gap-2 font-medium text-gray-800 dark:text-gray-200">
-                                                <FileText size={16} className="text-gray-400" />
-                                                {item.diagnosisSummary}
+                                            <div className="flex flex-col gap-1">
+                                                <div className="flex items-center gap-2 font-medium text-gray-800 dark:text-gray-200">
+                                                    <FileText size={16} className="text-gray-400" />
+                                                    {item.diagnosisSummary}
+                                                </div>
+                                                <div className="flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 pl-6">
+                                                    <ClipboardType size={12} /> {item.regimen === 'SURGERY' ? 'Ngoại khoa' : 'Nội khoa'}
+                                                </div>
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
@@ -167,7 +201,6 @@ export default function TreatmentCoursesPage() {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex items-center justify-center gap-2">
-                                                {/* Nút Xem Chi Tiết */}
                                                 <button
                                                     onClick={() => handleViewDetail(item._id)}
                                                     className="p-2 bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition shadow-sm border border-blue-100"
@@ -182,6 +215,15 @@ export default function TreatmentCoursesPage() {
                                                     title="Sửa thông tin chung"
                                                 >
                                                     <Edit size={16} />
+                                                </button>
+
+                                                {/* Nút In Tổng Quan */}
+                                                <button
+                                                    onClick={() => triggerPrint(item)}
+                                                    className="p-2 bg-gray-50 text-gray-700 rounded hover:bg-gray-200 transition shadow-sm border border-gray-200 dark:bg-zinc-800 dark:border-zinc-700 dark:text-gray-300 dark:hover:bg-zinc-700"
+                                                    title="In tóm tắt bệnh án"
+                                                >
+                                                    <Printer size={16} />
                                                 </button>
 
                                                 <button
@@ -207,6 +249,16 @@ export default function TreatmentCoursesPage() {
                 onSuccess={fetchData}
                 itemToEdit={selectedItem}
             />
+
+            <div className="hidden">
+                {printData && (
+                    <PrintOverviewTemplate
+                        ref={printRef}
+                        course={printData}
+                        settings={settings}
+                    />
+                )}
+            </div>
         </div>
     );
 }

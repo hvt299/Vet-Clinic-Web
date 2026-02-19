@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { X, Loader2, Save, User, PawPrint, Calendar, Activity, Stethoscope } from "lucide-react";
+import { X, Loader2, Save, User, PawPrint, Calendar, Activity, Stethoscope, ClipboardType } from "lucide-react";
 import { toast } from "sonner";
 import { treatmentCoursesService, TreatmentCourse } from "@/services/treatment-courses.service";
 import { customersService } from "@/services/customers.service";
@@ -25,9 +25,10 @@ export default function TreatmentCourseModal({ isOpen, onClose, onSuccess, itemT
         customerId: "",
         petId: "",
         diagnosisSummary: "",
+        regimen: "INTERNAL" as "INTERNAL" | "SURGERY",
         startDate: "",
         endDate: "",
-        status: "ONGOING" as "ONGOING" | "RECOVERED",
+        status: "ONGOING" as "ONGOING" | "RECOVERED" | "DECEASED" | "CANCELED",
     });
 
     useEffect(() => {
@@ -48,6 +49,7 @@ export default function TreatmentCourseModal({ isOpen, onClose, onSuccess, itemT
                 customerId: itemToEdit.customerId?._id || "",
                 petId: itemToEdit.petId?._id || "",
                 diagnosisSummary: itemToEdit.diagnosisSummary,
+                regimen: itemToEdit.regimen || "INTERNAL",
                 startDate: itemToEdit.startDate ? new Date(itemToEdit.startDate).toISOString().split('T')[0] : "",
                 endDate: itemToEdit.endDate ? new Date(itemToEdit.endDate).toISOString().split('T')[0] : "",
                 status: itemToEdit.status,
@@ -58,6 +60,7 @@ export default function TreatmentCourseModal({ isOpen, onClose, onSuccess, itemT
                 customerId: "",
                 petId: "",
                 diagnosisSummary: "",
+                regimen: "INTERNAL",
                 startDate: today,
                 endDate: "",
                 status: "ONGOING",
@@ -173,15 +176,29 @@ export default function TreatmentCourseModal({ isOpen, onClose, onSuccess, itemT
                         </div>
                     </div>
 
-                    {/* Trạng thái */}
-                    <div>
-                        <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Trạng thái điều trị</label>
-                        <div className="relative">
-                            <Activity className="absolute left-3 top-2.5 text-gray-400" size={18} />
-                            <select value={formData.status} onChange={(e) => setFormData({ ...formData, status: e.target.value as any })} className="w-full pl-10 pr-3 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 focus:ring-2 focus:ring-primary/50 outline-none font-medium">
-                                <option value="ONGOING">Đang điều trị</option>
-                                <option value="RECOVERED">Đã khỏi bệnh</option>
-                            </select>
+                    {/* Phác đồ & Trạng thái */}
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Phác đồ điều trị</label>
+                            <div className="relative">
+                                <ClipboardType className="absolute left-3 top-2.5 text-gray-400" size={18} />
+                                <select value={formData.regimen} onChange={(e) => setFormData({ ...formData, regimen: e.target.value as any })} className="w-full pl-10 pr-3 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 focus:ring-2 focus:ring-primary/50 outline-none">
+                                    <option value="INTERNAL">Nội khoa</option>
+                                    <option value="SURGERY">Ngoại khoa</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Trạng thái điều trị</label>
+                            <div className="relative">
+                                <Activity className="absolute left-3 top-2.5 text-gray-400" size={18} />
+                                <select value={formData.status} onChange={(e) => setFormData({ ...formData, status: e.target.value as any })} className="w-full pl-10 pr-3 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 focus:ring-2 focus:ring-primary/50 outline-none">
+                                    <option value="ONGOING">Đang điều trị</option>
+                                    <option value="RECOVERED">Đã khỏi bệnh</option>
+                                    <option value="DECEASED">Tử vong</option>
+                                    <option value="CANCELED">Hủy bỏ</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
 

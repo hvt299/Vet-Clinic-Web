@@ -1,18 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Plus, Calendar, User, PawPrint, Thermometer, Weight, Heart, Wind, Stethoscope, Clock, Edit, Trash2, Activity, Pill, Syringe, FileText, CheckCircle2, AlertCircle } from "lucide-react";
+import { useReactToPrint } from "react-to-print";
+import { ArrowLeft, Plus, Calendar, User, PawPrint, Thermometer, Weight, Heart, Wind, Stethoscope, Clock, Edit, Trash2, Activity, Pill, Syringe, ClipboardType, Printer } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { treatmentCoursesService, TreatmentCourse } from "@/services/treatment-courses.service";
 import { treatmentSessionsService, TreatmentSession } from "@/services/treatment-sessions.service";
 import { diagnosesService, Diagnosis } from "@/services/diagnoses.service";
 import { prescriptionsService, Prescription } from "@/services/prescriptions.service";
+import { settingsService, ClinicSettings } from "@/services/settings.service";
 
 import TreatmentSessionModal from "@/components/admin/TreatmentSessionModal";
 import DiagnosisModal from "@/components/admin/DiagnosisModal";
 import PrescriptionModal from "@/components/admin/PrescriptionModal";
+import PrintDetailTemplate from "@/components/admin/PrintDetailTemplate";
 
 interface TreatmentSessionExtended extends TreatmentSession {
     diagnoses: Diagnosis[];
@@ -38,14 +41,24 @@ export default function TreatmentDetailPage() {
     const [prescriptionModalOpen, setPrescriptionModalOpen] = useState(false);
     const [selectedPrescription, setSelectedPrescription] = useState<Prescription | null>(null);
 
+    const [settings, setSettings] = useState<ClinicSettings | null>(null);
+    const componentRef = useRef<HTMLDivElement>(null);
+
+    const handlePrint = useReactToPrint({
+        contentRef: componentRef,
+        documentTitle: `Chi-Tiet-Benh-An-${courseId}`,
+    });
+
     const fetchData = async () => {
         try {
-            const [courseData, sessionsData] = await Promise.all([
+            const [courseData, sessionsData, settingsData] = await Promise.all([
                 treatmentCoursesService.getById(courseId),
-                treatmentSessionsService.getByCourseId(courseId)
+                treatmentSessionsService.getByCourseId(courseId),
+                settingsService.get()
             ]);
 
             setCourse(courseData);
+            setSettings(settingsData);
 
             const enhancedSessions = await Promise.all(sessionsData.map(async (session) => {
                 const [diagnoses, prescriptions] = await Promise.all([
@@ -55,7 +68,7 @@ export default function TreatmentDetailPage() {
                 return { ...session, diagnoses, prescriptions };
             }));
 
-            setSessions(enhancedSessions);
+            setSessions(enhancedSessions.reverse());
         } catch (error) {
             toast.error("Không thể tải dữ liệu bệnh án");
         } finally {
@@ -86,24 +99,33 @@ export default function TreatmentDetailPage() {
     return (
         <div className="space-y-6">
             {/* Header / Breadcrumb */}
-            <div className="flex items-center gap-4">
-                <button onClick={() => router.back()} className="p-2 rounded-lg bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 hover:bg-gray-50 text-gray-600 transition">
-                    <ArrowLeft size={20} />
-                </button>
-                <div>
-                    <h1 className="text-xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
-                        Hồ sơ: {course.diagnosisSummary}
-                        {course.status === 'ONGOING'
-                            ? <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded border border-blue-200">Đang điều trị</span>
-                            : <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded border border-green-200">Đã hồi phục</span>
-                        }
-                    </h1>
-                    <p className="text-sm text-gray-500">Mã hồ sơ: #{course._id.slice(-6).toUpperCase()}</p>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                    <button onClick={() => router.back()} className="p-2 rounded-lg bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 hover:bg-gray-50 text-gray-600 transition">
+                        <ArrowLeft size={20} />
+                    </button>
+                    <div>
+                        <h1 className="text-xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
+                            Hồ sơ: {course.diagnosisSummary}
+                            {course.status === 'ONGOING' && <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded border border-blue-200">Đang điều trị</span>}
+                            {course.status === 'RECOVERED' && <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded border border-green-200">Đã hồi phục</span>}
+                            {course.status === 'DECEASED' && <span className="text-xs bg-zinc-800 text-white px-2 py-0.5 rounded border border-zinc-700">Tử vong</span>}
+                            {course.status === 'CANCELED' && <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded border border-red-200">Hủy bỏ</span>}
+                        </h1>
+                        <p className="text-sm text-gray-500">Mã hồ sơ: #{course._id.slice(-6).toUpperCase()}</p>
+                    </div>
                 </div>
+
+                <button
+                    onClick={() => handlePrint()}
+                    className="flex items-center justify-center gap-2 bg-gray-900 text-white px-4 py-2.5 rounded-lg shadow-sm font-medium transition hover:bg-gray-800 shrink-0"
+                >
+                    <Printer size={18} /> In chi tiết ca bệnh
+                </button>
             </div>
 
             {/* Thông tin chung */}
-            <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-border p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-border p-6 grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-full bg-pink-50 text-pink-600 flex items-center justify-center border border-pink-100">
                         <PawPrint size={24} />
@@ -137,6 +159,17 @@ export default function TreatmentDetailPage() {
                         </p>
                     </div>
                 </div>
+                <div className="flex items-center gap-4 border-l border-gray-100 dark:border-zinc-800 pl-0 md:pl-6">
+                    <div className="w-12 h-12 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center border border-teal-100">
+                        <ClipboardType size={24} />
+                    </div>
+                    <div>
+                        <p className="text-sm text-gray-500">Phác đồ</p>
+                        <p className="font-medium text-gray-800 dark:text-gray-200">
+                            {course.regimen === 'SURGERY' ? 'Ngoại khoa' : 'Nội khoa'}
+                        </p>
+                    </div>
+                </div>
             </div>
 
             {/* TIMELINE SECTION */}
@@ -155,14 +188,11 @@ export default function TreatmentDetailPage() {
             <div className="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-gray-300 before:to-transparent dark:before:via-zinc-700">
                 {sessions.map((session) => (
                     <div key={session._id} className="relative flex items-center justify-between md:justify-normal md:even:flex-row-reverse group is-active">
-                        {/* Dot */}
                         <div className="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white dark:border-zinc-900 bg-green-500 text-white shadow shrink-0 absolute left-0 md:left-1/2 translate-x-0 md:-translate-x-1/2 z-10">
                             <Stethoscope size={16} />
                         </div>
 
-                        {/* Card Nội dung */}
                         <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-white dark:bg-zinc-900 p-5 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-800 ml-14 md:ml-0 transition hover:border-primary/30 hover:shadow-md">
-                            {/* Header Card */}
                             <div className="flex justify-between items-start mb-2 border-b border-gray-100 dark:border-zinc-800 pb-2">
                                 <div className="flex items-center gap-2 text-sm text-gray-500">
                                     <Clock size={14} />
@@ -183,7 +213,6 @@ export default function TreatmentDetailPage() {
                                 "{session.overallNote}"
                             </p>
 
-                            {/* 1. Chỉ số sinh tồn */}
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
                                 <div className="flex flex-col items-center justify-center p-3 bg-gray-50 dark:bg-zinc-800/50 rounded-lg border border-gray-100 dark:border-zinc-800">
                                     <Thermometer size={18} className="text-red-500 mb-1" />
@@ -207,7 +236,6 @@ export default function TreatmentDetailPage() {
                                 </div>
                             </div>
 
-                            {/* 2. Chẩn đoán */}
                             <div className="mb-4">
                                 <div className="flex justify-between items-center mb-2">
                                     <h4 className="text-xs font-bold uppercase text-gray-500 flex items-center gap-1"><Activity size={12} /> Chẩn đoán</h4>
@@ -222,20 +250,17 @@ export default function TreatmentDetailPage() {
                                                         <span className="font-semibold text-orange-700 dark:text-orange-400">{diag.name}</span>
                                                         {diag.type === 'SECONDARY' && <span className="text-[10px] bg-orange-200 text-orange-800 px-1 rounded">Phụ</span>}
                                                     </div>
-
                                                     {diag.clinicalTest && (
                                                         <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
                                                             <span className="font-medium">Xét nghiệm:</span> {diag.clinicalTest}
                                                         </div>
                                                     )}
-
                                                     {diag.note && (
                                                         <div className="text-xs text-gray-500 italic mt-0.5">
                                                             Ghi chú: {diag.note}
                                                         </div>
                                                     )}
                                                 </div>
-
                                                 <div className="hidden group-hover/item:flex gap-1">
                                                     <button onClick={() => { setActiveSessionId(session._id); setSelectedDiagnosis(diag); setDiagnosisModalOpen(true); }} className="p-1 text-gray-400 hover:text-blue-500"><Edit size={12} /></button>
                                                     <button onClick={() => handleDeleteDiagnosis(diag._id)} className="p-1 text-gray-400 hover:text-red-500"><Trash2 size={12} /></button>
@@ -246,7 +271,6 @@ export default function TreatmentDetailPage() {
                                 ) : <p className="text-xs text-gray-400 italic">Chưa có chẩn đoán</p>}
                             </div>
 
-                            {/* 3. Y lệnh thuốc */}
                             <div>
                                 <div className="flex justify-between items-center mb-2">
                                     <h4 className="text-xs font-bold uppercase text-gray-500 flex items-center gap-1"><Pill size={12} /> Đơn thuốc / Y lệnh</h4>
@@ -290,20 +314,29 @@ export default function TreatmentDetailPage() {
             </div>
 
             {/* Modals */}
-            <TreatmentSessionModal
-                isOpen={sessionModalOpen} onClose={() => setSessionModalOpen(false)} onSuccess={fetchData}
-                courseId={courseId} itemToEdit={selectedSession}
-            />
+            <div>
+                <TreatmentSessionModal
+                    isOpen={sessionModalOpen} onClose={() => setSessionModalOpen(false)} onSuccess={fetchData}
+                    courseId={courseId} itemToEdit={selectedSession}
+                />
+                <DiagnosisModal
+                    isOpen={diagnosisModalOpen} onClose={() => setDiagnosisModalOpen(false)} onSuccess={fetchData}
+                    sessionId={activeSessionId} itemToEdit={selectedDiagnosis}
+                />
+                <PrescriptionModal
+                    isOpen={prescriptionModalOpen} onClose={() => setPrescriptionModalOpen(false)} onSuccess={fetchData}
+                    sessionId={activeSessionId} itemToEdit={selectedPrescription}
+                />
+            </div>
 
-            <DiagnosisModal
-                isOpen={diagnosisModalOpen} onClose={() => setDiagnosisModalOpen(false)} onSuccess={fetchData}
-                sessionId={activeSessionId} itemToEdit={selectedDiagnosis}
-            />
-
-            <PrescriptionModal
-                isOpen={prescriptionModalOpen} onClose={() => setPrescriptionModalOpen(false)} onSuccess={fetchData}
-                sessionId={activeSessionId} itemToEdit={selectedPrescription}
-            />
+            <div className="hidden">
+                <PrintDetailTemplate
+                    ref={componentRef}
+                    course={course}
+                    sessions={sessions}
+                    settings={settings}
+                />
+            </div>
         </div>
     );
 }

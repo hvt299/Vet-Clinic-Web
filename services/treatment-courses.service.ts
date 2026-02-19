@@ -13,9 +13,10 @@ export interface TreatmentCourse {
         species?: string;
     };
     diagnosisSummary: string;
+    regimen: 'INTERNAL' | 'SURGERY';
     startDate: string;
     endDate?: string;
-    status: 'ONGOING' | 'RECOVERED';
+    status: 'ONGOING' | 'RECOVERED' | 'DECEASED' | 'CANCELED';
     createdAt: string;
 }
 
