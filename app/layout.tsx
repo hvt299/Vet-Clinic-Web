@@ -16,9 +16,17 @@ const geistMono = Geist_Mono({
 
 async function getSettings() {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/settings`, { 
-      next: { revalidate: 60 }
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    if (!apiUrl && process.env.NODE_ENV === 'production') {
+      return null;
+    }
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 2500);
+    const res = await fetch(`${apiUrl || 'http://localhost:3001'}/settings`, { 
+      next: { revalidate: 60 },
+      signal: controller.signal,
     });
+    clearTimeout(timeoutId);
     if (!res.ok) return null;
     return res.json();
   } catch (error) {
